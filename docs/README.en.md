@@ -162,7 +162,7 @@ docker buildx build \
 | :-- | :-- | :-- |
 | `/v1/*` | `app.api_key` | No extra authentication when empty |
 | `/admin/*` | `app.app_key` | Default value: `grok2api` |
-| `/webui/*` | `app.webui_enabled`, `app.webui_key` | Disabled by default; if `webui_key` is empty, no extra verification is required |
+| `/webui/*` | `app.webui_enabled`, `app.webui_key` | Enabled by default; if `webui_key` is empty, no extra verification is required |
 
 <br>
 

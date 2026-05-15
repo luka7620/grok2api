@@ -7,7 +7,7 @@ app_url = ""
 # API 调用密钥
 api_key = ""
 # 启用 WebUI
-webui_enabled = false
+webui_enabled = true
 # WebUI 访问密码
 webui_key = ""
 

@@ -163,7 +163,7 @@ docker buildx build \
 | :-- | :-- | :-- |
 | `/v1/*` | `app.api_key` | 为空则不额外鉴权 |
 | `/admin/*` | `app.app_key` | 默认值 `grok2api` |
-| `/webui/*` | `app.webui_enabled`, `app.webui_key` | 默认关闭；`webui_key` 为空则不额外校验 |
+| `/webui/*` | `app.webui_enabled`, `app.webui_key` | 默认开启；`webui_key` 为空则不额外校验 |
 
 <br>
 

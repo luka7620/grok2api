@@ -34,7 +34,7 @@ def _serve_html(path: str):
 
 @router.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse("/admin")
+    return RedirectResponse("/webui/login")
 
 
 # --- Admin pages ---
