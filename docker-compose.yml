@@ -1,17 +1,20 @@
 services:
   grok2api:
     container_name: grok2api
-    image: ghcr.io/chenyme/grok2api:latest
+    image: ${IMAGE_NAME:-luka762/grok2api}:${IMAGE_TAG:-latest}
     ports:
       - "${HOST_PORT:-8000}:${SERVER_PORT:-8000}"
     environment:
-      TZ: Asia/Shanghai
+      TZ: ${TZ:-Asia/Shanghai}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FILE_ENABLED: ${LOG_FILE_ENABLED:-true}
       SERVER_HOST: ${SERVER_HOST:-0.0.0.0}
       SERVER_PORT: ${SERVER_PORT:-8000}
       SERVER_WORKERS: ${SERVER_WORKERS:-1}
+      DATA_DIR: /app/data
+      LOG_DIR: /app/logs
       ACCOUNT_STORAGE: ${ACCOUNT_STORAGE:-local}
-      ACCOUNT_LOCAL_PATH: ${ACCOUNT_LOCAL_PATH:-data/accounts.db}
+      ACCOUNT_LOCAL_PATH: ${ACCOUNT_LOCAL_PATH:-/app/data/accounts.db}
       ACCOUNT_REDIS_URL: ${ACCOUNT_REDIS_URL:-}
       ACCOUNT_MYSQL_URL: ${ACCOUNT_MYSQL_URL:-}
       ACCOUNT_POSTGRESQL_URL: ${ACCOUNT_POSTGRESQL_URL:-}
@@ -26,8 +29,8 @@ services:
       # ACCOUNT_MYSQL_URL: MySQL DSN when ACCOUNT_STORAGE=mysql
       # ACCOUNT_POSTGRESQL_URL: PostgreSQL DSN when ACCOUNT_STORAGE=postgresql
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
+      - ./${DATA_DIR:-data}:/app/data
+      - ./${LOG_DIR:-logs}:/app/logs
     restart: unless-stopped
 
   # 如果出口 IP 不干净，可取消以下注释使用 Warp 作为落地代理

@@ -93,7 +93,7 @@ flowchart LR
 ### Local Deployment
 
 ```bash
-git clone https://github.com/chenyme/grok2api
+git clone https://github.com/luka7620/grok2api
 cd grok2api
 cp .env.example .env
 uv sync
@@ -102,20 +102,36 @@ uv run granian --interface asgi --host 0.0.0.0 --port 8000 --workers 1 app.main:
 
 ### Docker Compose
 
+The server does not need source code or local image builds. Keep only `docker-compose.yml`, `.env`, `data/`, and `logs/` on the server. Build and push the DockerHub image locally or in CI, then run `docker compose pull && docker compose up -d` on the server.
+
 ```bash
-git clone https://github.com/chenyme/grok2api
-cd grok2api
-cp .env.example .env
+mkdir -p grok2api-deploy
+cd grok2api-deploy
+
+curl -fsSL https://raw.githubusercontent.com/luka7620/grok2api/main/deploy/docker-deploy.sh \
+  | IMAGE_NAME=luka762/grok2api IMAGE_TAG=latest bash
+
+docker compose pull
 docker compose up -d
+docker compose logs -f
+```
+
+Build and push a multi-arch image locally:
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t luka762/grok2api:latest \
+  --push .
 ```
 
 ### Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/chenyme/grok2api&env=LOG_LEVEL,LOG_FILE_ENABLED,DATA_DIR,LOG_DIR,ACCOUNT_STORAGE,ACCOUNT_REDIS_URL,ACCOUNT_MYSQL_URL,ACCOUNT_POSTGRESQL_URL)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/luka7620/grok2api&env=LOG_LEVEL,LOG_FILE_ENABLED,DATA_DIR,LOG_DIR,ACCOUNT_STORAGE,ACCOUNT_REDIS_URL,ACCOUNT_MYSQL_URL,ACCOUNT_POSTGRESQL_URL)
 
 ### Render
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chenyme/grok2api)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/luka7620/grok2api)
 
 ### First Launch
 

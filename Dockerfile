@@ -1,5 +1,7 @@
 # ── Builder ───────────────────────────────────────────────────────────────────
-FROM python:3.13-alpine AS builder
+ARG PYTHON_IMAGE=python:3.13-alpine
+
+FROM ${PYTHON_IMAGE} AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -36,7 +38,7 @@ RUN uv sync --frozen --no-dev --no-install-project \
     && rm -rf /root/.cache /tmp/uv-cache
 
 # ── Runtime ───────────────────────────────────────────────────────────────────
-FROM python:3.13-alpine
+FROM ${PYTHON_IMAGE}
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
