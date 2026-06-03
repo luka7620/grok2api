@@ -578,8 +578,14 @@ async def completions(
                                                     is_first=True,
                                                 )
                                                 yield f"data: {orjson.dumps(chunk).decode()}\n\n"
+                                            pt = estimate_prompt_tokens(message)
                                             done_chunk = make_tool_call_done_chunk(
-                                                response_id, model
+                                                response_id,
+                                                model,
+                                                usage=build_usage(
+                                                    pt,
+                                                    estimate_tool_call_tokens(parsed_calls),
+                                                ),
                                             )
                                             yield f"data: {orjson.dumps(done_chunk).decode()}\n\n"
                                             yield "data: [DONE]\n\n"
@@ -627,8 +633,14 @@ async def completions(
                                         is_first=True,
                                     )
                                     yield f"data: {orjson.dumps(chunk).decode()}\n\n"
+                                pt = estimate_prompt_tokens(message)
                                 done_chunk = make_tool_call_done_chunk(
-                                    response_id, model
+                                    response_id,
+                                    model,
+                                    usage=build_usage(
+                                        pt,
+                                        estimate_tool_call_tokens(flushed_calls),
+                                    ),
                                 )
                                 # 注入结构化搜索信源（tool_calls 场景）
                                 sources = adapter.search_sources_list()
@@ -645,8 +657,10 @@ async def completions(
                                 )
 
                         if not tool_calls_emitted:
+                            extra_output_parts: list[str] = []
                             for url, img_id in adapter.image_urls:
                                 img_text = await _resolve_image(token, url, img_id)
+                                extra_output_parts.append(img_text + "\n")
                                 chunk = make_stream_chunk(
                                     response_id, model, img_text + "\n"
                                 )
@@ -654,17 +668,32 @@ async def completions(
 
                             references = adapter.references_suffix()
                             if references:
+                                extra_output_parts.append(references)
                                 chunk = make_stream_chunk(
                                     response_id, model, references
                                 )
                                 yield f"data: {orjson.dumps(chunk).decode()}\n\n"
 
                             chat_anns = _to_chat_annotations(collected_annotations)
+                            pt = estimate_prompt_tokens(message)
+                            thinking_text = (
+                                "".join(adapter.thinking_buf) if emit_think else ""
+                            )
+                            rt = estimate_tokens(thinking_text) if thinking_text else 0
+                            completion_text = "".join(adapter.text_buf) + "".join(
+                                extra_output_parts
+                            )
+                            usage = build_usage(
+                                pt,
+                                estimate_tokens(completion_text) + rt,
+                                reasoning_tokens=rt,
+                            )
                             final = make_stream_chunk(
                                 response_id,
                                 model,
                                 "",
                                 is_final=True,
+                                usage=usage,
                                 annotations=chat_anns or None,
                             )
                             # 注入结构化搜索信源到 chunk 根对象（避免 delta strict schema 拒绝）
